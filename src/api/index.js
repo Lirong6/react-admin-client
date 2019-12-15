@@ -13,7 +13,12 @@ export const reqLogin = (username,password) => ajax('/login',{username,password}
 
 //添加用户
 export const reqAddUser = (user) => ajax('/manage/user/add',user,'POST')
-
+//获取所有用户列表
+export const reqUsers = () => ajax('/manage/user/list')
+//删除用户
+export const reqDeleteUser = (userId) => ajax('/manage/user/delete',{userId},'POST')
+//添加/更新用户
+export const reqAddOrUpdateUser = (user) => ajax('/manage/user/'+(user._id?'update':'add'),user,'POST')
 
 //json请求的接口请求函数,,,,jsonp请求是为了解决Ajax跨域问题，但只能解决GET请求，并且jsonp请求是一般的get请求，不是Ajax请求。
 //浏览器端通过<script>标签发请求，同时定义好用于接收响应数据的函数（如fn），并将函数名通过请求参数提交给后台（如：callback=fn）
@@ -67,3 +72,11 @@ export const reqAddProduct = (product) => ajax('/manage/product/add',product,'PO
 export const reqUpdateProduct = (product) => ajax('/manage/product/update',product,'POST')
 //添加/更新商品
 export const reqAddOrUpdateProduct = (product) => ajax('/manage/product/'+(product._id?'update':'add'),product,'POST')
+
+
+//获取所有角色列表
+export const reqRoles = () => ajax('/manage/role/list')
+//添加一个角色
+export const reqAddRole = (roleName) => ajax('/manage/role/add',{roleName},'POST')
+//更新角色
+export const reqUpdateRole = (role) => ajax('/manage/role/update',role,'POST')

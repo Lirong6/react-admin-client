@@ -94,7 +94,7 @@ class Login extends Component{
           {getFieldDecorator('username', {
             //声明式验证
             rules: [
-              { required: true, message: 'Please input your username!' },
+              { required: true, message: '请输入用户名' },
               {min:4,message:'最少4位'},
               {max:12,message:'最多12位'},
               {pattern:/^[a-zA-Z0-9_]+$/,message:'必须是英文字母、数字、下划线'}],
