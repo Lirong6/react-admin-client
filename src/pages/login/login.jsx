@@ -3,9 +3,11 @@ import {Redirect} from 'react-router-dom'
 import './login.less'
 import logo from '../../assets/images/logo.png'
 import {Form,Icon,Button,Input,message} from 'antd'
-import {reqLogin} from '../../api'
-import memoryUtils from '../../utils/memoryUtils'
-import storageUtils from '../../utils/storageUtils'
+// import {reqLogin} from '../../api'
+// import memoryUtils from '../../utils/memoryUtils'
+// import storageUtils from '../../utils/storageUtils'
+import {connect} from 'react-redux'
+import {login} from '../../redux/actions'
 
 const Item=Form.Item
 class Login extends Component{
@@ -18,33 +20,34 @@ class Login extends Component{
         console.log('提交登陆的Ajax请求',values)
         //请求登陆
         const {username,password} = values
-        // reqLogin(username,password).then(response => {
-        //   console.log('请求成功',response.data)
-        // }).error(error => {
-        //   console.log('请求失败')
-        // })
+        // // reqLogin(username,password).then(response => {
+        // //   console.log('请求成功',response.data)
+        // // }).error(error => {
+        // //   console.log('请求失败')
+        // // })
 
-        // try{
-        //   const response = await reqLogin(username,password)
-        //   console.log('请求成功',response.data)
-        // }catch(error){
-        //   console.log('请求失败',error.message)
+        // // try{
+        // //   const response = await reqLogin(username,password)
+        // //   console.log('请求成功',response.data)
+        // // }catch(error){
+        // //   console.log('请求失败',error.message)
+        // // }
+        // const result = await reqLogin(username,password)
+        // //console.log('请求成功',response.data)
+        // //const result = response.data
+        // if(result.status===0){
+        //   message.success('登陆成功')
+        //   //保存user到内存（刷新地址会清掉内存，不能实现持久登陆）
+        //   const user = result.data
+        //   memoryUtils.user=user
+        //   storageUtils.saveUser(user)//保存到local中
+        //   //用replace而不用push是因为不需要回退回来了(在事件回调中跳转用history)
+        //   this.props.history.replace('/home')
+        // }else{
+        //   message.error(result.msg)
         // }
-        const result = await reqLogin(username,password)
-        //console.log('请求成功',response.data)
-        //const result = response.data
-        if(result.status===0){
-          message.success('登陆成功')
-          //保存user到内存（刷新地址会清掉内存，不能实现持久登陆）
-          const user = result.data
-          memoryUtils.user=user
-          storageUtils.saveUser(user)//保存到local中
-          //用replace而不用push是因为不需要回退回来了(在事件回调中跳转用history)
-          this.props.history.replace('/')
-        }else{
-          message.error(result.msg)
-        }
-        
+        //调用异步action的函数，发登陆的异步请求，有结果之后分发action更新user状态
+        this.props.login(username,password)
       }else{
         console.log('校验失败')
       }
@@ -72,10 +75,15 @@ class Login extends Component{
 
   render(){
     //如果用户已经登陆，自动跳转到首页，只需要看内存里有没有user
-    const user = memoryUtils.user
+    //const user = memoryUtils.user
+    const user = this.props.user
     if(user && user._id){
-      return <Redirect to='/'/>
+      return <Redirect to='/home'/>
     }
+    //显示错误信息
+    const errorMsg = this.props.user.errorMsg
+
+  
     //具有强大功能的form对象
     const form = this.props.form
     //getFieldDecorator（‘标识名称’，配置对象）（组件标签）是一个高阶函数
@@ -88,6 +96,7 @@ class Login extends Component{
           <h1>React后台管理系统</h1>
         </header>
         <section className='login-content'>
+          <div className={errorMsg?'error-msg show':'error-msg'}>{errorMsg}</div>
           <h2>登陆</h2>
         <Form onSubmit={this.handleSubmit} className="login-form">
         <Item>
@@ -140,7 +149,10 @@ class Login extends Component{
 }
 
 //create高阶函数，将Form组件包装起来返回一个新组件，新组件向Form老组件传递一个强大的form对象，这个对象里面的方法可以实现验证表单，获取表单值等功能。
-export default Form.create()(Login)
+export default connect(
+  state => ({user:state.user}),
+  {login}
+)(Form.create()(Login))
 
 /*
 高阶函数

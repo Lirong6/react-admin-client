@@ -3,11 +3,13 @@ import {withRouter} from 'react-router-dom'
 import {Modal} from 'antd'
 import './index.less'
 import {formatDate} from '../../utils/dateUtils.js'
-import memoryUtils from '../../utils/memoryUtils.js'
-import storageUtils from '../../utils/storageUtils.js'
+//import memoryUtils from '../../utils/memoryUtils.js'
+//import storageUtils from '../../utils/storageUtils.js'
 import {reqWeather} from '../../api'
 import menuList from '../../config/menuConfig.js'
 import LinkButton from '../link-button'
+import {connect} from 'react-redux' 
+import {logout} from '../../redux/actions'
 
 class Header extends Component{
 
@@ -52,10 +54,12 @@ class Header extends Component{
       //要把onOk(){}改造成箭头函数，这样this就用的是外层函数的this了
       onOk:() => {
         //清除user数据
-        storageUtils.removeUser()
-        memoryUtils.user = {}
+        //storageUtils.removeUser()
+        //memoryUtils.user = {}
+        
         //跳转到login
-        this.props.history.replace('/login')
+        //this.props.history.replace('/login')
+        this.props.logout()
       }
     })
   }
@@ -78,9 +82,11 @@ class Header extends Component{
   render(){
 
     const {currentTime,dayPictureUrl,weather} =this.state
-    const username = memoryUtils.user.username
+    //const username = memoryUtils.user.username
+    const username = this.props.user.username
 
-    const title = this.getTitle()
+    //const title = this.getTitle()
+    const title = this.props.headTitle
 
     return (
       <div className='header'>
@@ -102,4 +108,7 @@ class Header extends Component{
     )
   }
 }
-export default withRouter(Header)
+export default connect(
+  state => ({headTitle:state.headTitle,user:state.user}),
+  {logout}
+)(withRouter(Header))

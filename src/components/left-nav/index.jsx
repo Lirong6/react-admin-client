@@ -4,7 +4,9 @@ import logo from '../../assets/images/logo.png'
 import {Link,withRouter} from 'react-router-dom'
 import {Menu,Icon} from 'antd'
 import menuList from '../../config/menuConfig.js'
-import memoryUtils from '../../utils/memoryUtils'
+//import memoryUtils from '../../utils/memoryUtils'
+import {connect} from 'react-redux'
+import {setHeadTitle} from '../../redux/actions'
 //const SubMenu = Menu.SubMenu
 const {SubMenu} = Menu
 
@@ -16,10 +18,17 @@ class LeftNav extends Component{
     return menuList.reduce((pre,item) => {
       //如果当前用户有item对应的权限，才需要显示对应的菜单项
       if(this.hasAuth(item)){
+        
         if(!item.children){
+          //解决刷新之后headTitle变为初始值，不与当前标签匹配问题
+          if(item.key === path || path.indexOf(item.key) === 0){
+            //更新store中的header状态
+            this.props.setHeadTitle(item.title)
+          }
+        
           pre.push((
             <Menu.Item key={item.key}>
-              <Link to={item.key}>
+              <Link to={item.key} onClick={() => this.props.setHeadTitle(item.title)}>
                 <Icon type={item.icon}/>
                 <span>{item.title}</span>
               </Link>
@@ -57,8 +66,10 @@ class LeftNav extends Component{
   //判断当前登陆用户对item是否有权限
   hasAuth = (item) => {
     const {key,isPublic} = item
-    const menus = memoryUtils.user.role.menus
-    const username = memoryUtils.user.username
+    //const menus = memoryUtils.user.role.menus
+    //const username = memoryUtils.user.username
+    const menus = this.props.user.role.menus
+    const username = this.props.user.username
     /** 
      * 1、如果当前用户是admin，return true
      * 2、当前用户有item权限，看key在不在menus中
@@ -113,7 +124,10 @@ class LeftNav extends Component{
     )
   }
 }
-export default withRouter(LeftNav)
+export default connect(
+  state => ({user:state.user}),
+  {setHeadTitle}
+)(withRouter(LeftNav))
 /*
 map和递归实现getMenuNodes
 getMenuNodes = (menuList) => {
